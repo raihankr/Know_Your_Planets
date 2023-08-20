@@ -1,0 +1,446 @@
+<!-- 
+    Tugas ORBIT
+    Nama: Raihan Khairul Rochman
+    Kelas: X-PPLG 1
+ -->
+
+ <!DOCTYPE html>
+ <html lang="id">
+ <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Know Your Planets</title>
+
+    <style>
+
+        * {
+            box-sizing:   border-box;
+            font-family: 'Product Sans';
+            color: white;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        body {
+            padding: 0;
+            margin: 0;
+            background-color: black;
+        }
+
+        header {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        header h1, header h3 {
+            opacity: 0;
+            translate: 0 100%;
+            transition: all 1s;
+            z-index: 2;
+        }
+
+        h1 {
+            display: block;
+            font-size: 50px;
+            margin-bottom: 0;
+            text-align: center;
+        }
+
+        h3 {
+            display: block; 
+            font-weight: normal;
+            text-align: center;
+        }
+
+        .stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            opacity: 100;
+            animation: twinkle 4s infinite;
+            z-index: 1;
+            pointer-events: none;
+
+            &:nth-child(2) {
+                animation-delay: calc(4s * -0.33);
+            }
+
+            &:nth-child(3) {
+                animation-delay: calc(4s * -0.66);
+            }
+        }
+
+        .star {
+            background-color: white;
+            position: fixed;
+            border-radius: 50%;
+
+            &:nth-child(3n) {
+                opacity: 0.8;
+            }
+            &:nth-child(7n) {
+                opacity: 0.6;
+            }
+            &:nth-child(13n) {
+                opacity: 0.4;
+            }
+            &:nth-child(19n) {
+                opacity: 0.2;
+            }
+        }
+
+        main {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .planet-container {
+            opacity: 0;
+            display: inline-block;
+            position: absolute;
+            width: 100vw;
+            height: 100vh;
+            background-image: linear-gradient(black, var(--bg-color) 150%);
+            box-shadow: inset 0 0 40vw black;
+            transition: opacity 1s;
+        }
+
+        .planet-container:target {
+            opacity: 100;
+        }
+
+        .planet-container .banner h1,
+        .planet-container .banner h3 {
+            opacity: 0;
+            translate: 0 -100%;
+            transition: all 1s;
+        }
+
+        .planet-container:target .banner h1,
+        .planet-container:target .banner h3 {
+            opacity: 100;
+            translate: 0 0;
+        }
+
+        .planet-container .banner h1 {
+            margin-top: 0;
+            opacity: 0;
+        }
+        
+        .planet-container .banner h3 {
+            margin-top: 50px;
+            margin-bottom: 0;
+        }
+
+        .planet {
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            translate: -50% 150vh;
+            rotate: -90deg;
+            scale: 1;
+            opacity: 0;
+            transition: translate 2s, opacity 1s, scale 2s, rotate 2s;
+            width: 85vw;
+            height: 85vw;
+            filter: drop-shadow(0 0 50px #fff8);
+            z-index: 2;
+        }
+
+        #saturn img {
+            width: calc(85vw * 1.5625);
+            translate: -50% 150vh;
+            rotate: 40deg;
+        }
+
+        .planet-container:target .planet {
+            translate: -50% 5vh;
+            opacity: 100;
+        }
+
+        #saturn:target img {
+            translate: -50% -10vh;
+        }
+
+        .planet-container.opened .planet {
+            translate: -10vw -50%;
+            rotate: 0deg;
+            scale: 0.35;
+        }
+
+        #saturn.opened img {
+            translate: -30vw -50%;
+            rotate: 0deg;
+        }
+
+        .planet-container .description {
+            position: absolute;
+            width: 50vw;
+            left: 50px;
+            top: 30vh;
+            font-size: 20px;
+            text-align: justify;
+            transition: all 1s;
+            opacity: 0;
+            translate: 0 100%;
+        }
+
+        .planet-container.opened .description {
+            opacity: 100;
+            translate: 0 0;
+        }
+
+        main > button {
+            position: fixed;
+            top: 50%;
+            background-color: transparent;
+            border: none;
+            font-size: 70px;
+            z-index: 10;
+            transition: visibility 1s, opacity 1s;
+        }
+
+        #planet-nav-left {
+            left: 0;
+        }
+
+        #planet-nav-right {
+            right: 0;
+        }
+
+        main .close {
+            top: 10px;
+            left: 10px;
+            visibility: hidden;
+            opacity: 0;
+        }
+
+        main:has(.planet-container.opened) .planet-nav {
+            visibility: hidden;
+            opacity: 0;
+        }
+
+        main:has(.planet-container.opened) .close {
+            visibility: visible;
+            opacity: 100;
+        }
+
+        @keyframes rotate {
+            0% { rotate: 0; }
+            25% { rotate: 90deg; }
+            50% { rotate: 180deg; }
+            75% { rotate: 270deg; }
+            75% { rotate: 270deg; }
+        }
+
+        @keyframes twinkle {
+            25% {
+                opacity: 0;
+            }
+        }
+
+        @keyframes slide-up {
+            from {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 100;
+            }
+        }
+    </style>
+    <script>
+        const $ = query => document.querySelector(query);
+        const $all = query => document.querySelectorAll(query);
+
+        function toggleClass(name, el) {
+            if (el.classList.contains(name)) el.classList.remove(name);
+            else el.classList.add(name);
+        }
+
+        function slideUpIn(el) {
+            el.style.opacity = 100;
+            el.style.translate = '0 0';
+        }
+
+        function slideUpOut(el) {
+            el.style.opacity = 0;
+            el.style.translate = '0 -100%';
+        }
+    </script>
+ </head>
+ <body>
+    <header>
+        <script>
+            for (let s = 0; s < 3; s++) {
+                let stars = document.createElement('div');
+                stars.classList.add('stars');
+                $('header').appendChild(stars);
+                
+                for (let i = 0; i < 200; i++) {
+                    let cx = Math.round(Math.random() * 10000) / 100 + '%';
+                    let cy = Math.round(Math.random() * 10000) / 100 + '%';
+                    let r = Math.round((Math.random() + .5) * 10) / 10;
+
+                    let star = document.createElement('div');
+                    star.classList.add('star');
+                    star.style.left = cx;
+                    star.style.top = cy;
+                    star.style.width = star.style.height =  r + 'px';
+                    stars.appendChild(star);
+                }
+            }
+        </script>
+
+        <h1>Know your planets</h1>
+        <h3>Get to know about the planets in our solar system</h3>
+
+        <script>
+            $all('header h1, header h3').forEach(el => {
+                setTimeout(() => {
+                    slideUpIn(el);
+                }, 1e3);
+
+                setTimeout(() => {
+                    slideUpOut(el);
+                }, 4e3)
+            })
+        </script>
+    </header>
+    <main>
+        <button id="planet-nav-left" class="planet-nav" onclick=" navigate('left')">&lt;</button>
+        <button id="planet-nav-right" class="planet-nav" onclick="navigate('right')">&gt;</button>
+        <button class="close" onclick="toggleClass('opened', $('.planet-container:target'))">&times;</button>
+        <script>
+            let currPage = 0;
+
+            function navigate(dir) {
+                let list = [
+                    'mercury',
+                    'venus',
+                    'earth',
+                    'mars',
+                    'jupiter',
+                    'saturn',
+                    'uranus',
+                    'neptune'
+                ]
+
+                if (dir == 'left' && currPage > 0) currPage--;
+                else if (dir == 'right' && currPage < 7) currPage++;
+                else if (typeof dir == 'number' && dir >= 0 && dir <= 7) currPage = dir;
+
+                let a = document.createElement('a');
+                a.href = '#' + list[currPage];
+                a.click();
+            }
+        </script>
+
+        <div id="mercury" class="planet-container" style="--bg-color: #9e9e9e">
+            <div class="banner">
+                <h3>PLANET</h3>
+                <h1>Merkurius</h1>
+            </div>
+            <img class="planet" src="https://drive.google.com/uc?export=view&id=1o_lmH4CRe4a4KX7UavZT3Rp3EnJONKNP">
+            <p class="description">
+                Merkurius merupakan planet terkecil di Tata Surya sekaligus yang terdekat dari Matahari. Periode revolusi planet ini merupakan yang terpendek dari semua planet di Tata Surya, yakni 87,79 hari. Seperti halnya Venus, Merkurius merupakan planet inferior yang letak orbitnya berada di sebelah dalam orbit Bumi, dan ketika diamati dari Bumi, jarak sudutnya dari Matahari tidak pernah melebihi 28°. Karena jarak yang dekat dengan Matahari, planet ini hanya dapat dilihat di dekat ufuk barat setelah matahari terbenam atau ufuk timur sebelum matahari terbit, atau biasanya ketika aram. Merkurius akan tampak seperti bintang yang terang jika diamati pada waktu tersebut, tetapi sering kali jauh lebih sulit untuk diamati daripada Venus. Jika diamati dari teleskop, Merkurius akan menampilkan serangkaian fase yang mirip dengan fase Venus dan Bulan, ketika bergerak di orbit bagian dalamnya yang relatif terhadap Bumi dan terjadi berulang dalam satu siklus sinodiknya, yakni sekitar 116 hari.
+            </p>
+        </div>
+        <div id="venus" class="planet-container" style="--bg-color: #eeb839">
+            <div class="banner">
+                <h3>PLANET</h3>
+                <h1>Venus</h1>
+            </div>
+            <img class="planet" src="https://static.vecteezy.com/system/resources/previews/020/922/026/original/isolated-realistic-venus-surface-illustration-png.png">
+            <p class="description">
+                Venus adalah planet terdekat kedua dari Matahari setelah Merkurius. Planet ini mengorbit Matahari selama 224,7 hari Bumi. Venus tidak memiliki satelit alami dan dinamai dari dewi cinta dan kecantikan dalam mitologi Romawi. Setelah Bulan, planet ini merupakan objek alami tercerah di langit malam, dengan magnitudo tampak sebesar -4,6 yang cukup cerah untuk menghasilkan bayangan. Venus merupakan planet inferior dengan sudut elongasi yang mencapai 47,8°. Kecerahan maksimal planet ini dapat dilihat segera sebelum matahari terbit atau setelah matahari terbenam, sehingga disebut Bintang Fajar atau Bintang Senja.
+            </p>
+        </div>
+        <div id="earth" class="planet-container" style="--bg-color: #337bf4">
+            <div class="banner">
+                <h3>PLANET</h3>
+                <h1>Bumi</h1>
+            </div>
+            <img class="planet" src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Earth_Western_Hemisphere_transparent_background.png/768px-Earth_Western_Hemisphere_transparent_background.png">
+            <p class="description">
+                Bumi adalah planet terdekat ketiga dari Matahari yang merupakan planet terpadat dan terbesar kelima dari delapan planet dalam Tata Surya. Bumi juga merupakan planet terbesar dari empat planet kebumian di Tata Surya. Bumi terkadang disebut dengan dunia atau Planet Biru.
+            </p>
+        </div>
+        <div id="mars" class="planet-container" style="--bg-color: #ff2828">
+            <div class="banner">
+                <h3>PLANET</h3>
+                <h1>Mars</h1>
+            </div>
+            <img class="planet" src="https://www.freepnglogos.com/uploads/mars-png/mars-interactive-solar-system-13.png">
+            <p class="description">
+                Mars adalah planet terdekat keempat dari Matahari. Namanya diambil dari dewa perang Romawi, Mars. Planet ini sering dijuluki sebagai "planet merah" karena tampak dari jauh berwarna kemerah-kemerahan. Ini disebabkan oleh keberadaan besi(III) oksida di permukaan planet Mars. Mars adalah planet bebatuan dengan atmosfer yang tipis. Di permukaan Mars terdapat kawah, gunung berapi, lembah, gurun, dan tudung es. Periode rotasi dan siklus musim Mars mirip dengan Bumi. Di Mars berdiri Olympus Mons, gunung tertinggi di Tata Surya, dan Valles Marineris, lembah terbesar di Tata Surya. Selain itu, di belahan utara terdapat cekungan Borealis yang meliputi 40% permukaan Mars.
+            </p>
+        </div>
+        <div id="jupiter" class="planet-container" style="--bg-color: #b9a06f">
+            <div class="banner">
+                <h3>PLANET</h3>
+                <h1>Jupiter</h1>
+            </div>
+            <img class="planet" src="https://upload.wikimedia.org/wikipedia/commons/e/e1/Jupiter_%28transparent%29.png">
+            <p class="description">
+                Jupiter adalah planet terdekat kelima dari Matahari setelah Merkurius, Venus, Bumi, dan Mars. Planet ini juga merupakan planet terbesar di Tata Surya. Jupiter merupakan raksasa gas dengan massa seperseribu massa Matahari dan dua setengah kali jumlah massa semua planet lain di Tata Surya. Planet ini dan raksasa gas lain di Tata Surya (yaitu Saturnus, Uranus, dan Neptunus) kadang-kadang disebut planet Jovian atau planet luar. Jupiter telah dikenal oleh para astronom sejak zaman kuno, dan dikaitkan dengan mitologi dan kepercayaan religius banyak peradaban. Bangsa Romawi menamai planet ini dari dewa Jupiter dalam mitologi Romawi. Saat diamati dari Bumi, magnitudo tampak Jupiter dapat mencapai -2,94, yang cukup terang untuk menghasilkan bayangan, dan juga menjadikannya objek tercerah ketiga di langit malam setelah Bulan dan Venus, walaupun Mars dapat menyaingi kecerahan Jupiter pada saat tertentu.
+            </p>
+        </div>
+        <div id="saturn" class="planet-container" style="--bg-color: #f0e737">
+            <div class="banner">
+                <h3>PLANET</h3>
+                <h1>Saturnus</h1>
+            </div>
+            <img class="planet" src="https://upload.wikimedia.org/wikipedia/commons/4/43/Saturnx.png">
+            <p class="description">
+                Saturnus adalah planet keenam dari Matahari dan merupakan planet terbesar kedua di Tata Surya setelah Jupiter. Saturnus juga merupakan sebuah raksasa gas yang memiliki radius rata-rata sekitar 9 kali radius rata-rata Bumi. Massa jenis rata-rata Saturnus hanya 1/8 massa jenis rata-rata Bumi, tetapi dengan volume yang lebih besar dari Bumi, massa Saturnus tercatat 95 kali massa Bumi. Saturnus dinamai menurut dewa kesejahteraan dan agribudaya dalam mitologi Yunani; simbol astronominya (♄) melambangkan sabit yang digunakan oleh dewa tersebut.
+            </p>
+        </div>
+        <div id="uranus" class="planet-container" style="--bg-color: #5facc9">
+            <div class="banner">
+                <h3>PLANET</h3>
+                <h1>Uranus</h1>
+            </div>
+            <img class="planet" src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Uranus2-transparent.png/768px-Uranus2-transparent.png">
+            <p class="description">
+                Uranus adalah planet ketujuh dari Matahari. Uranus merupakan planet yang memiliki jari-jari terbesar ketiga sekaligus massa terbesar keempat di Tata Surya. Uranus juga merupakan satu-satunya planet yang namanya berasal dari tokoh dalam mitologi Yunani, dari versi Latinisasi nama dewa langit Yunani Ouranos. Komposisi Uranus serupa dengan Neptunus, dan keduanya mempunyai komposisi kimiawi yang berbeda dari raksasa gas yang lebih besar, Jupiter dan Saturnus. Karenanya, para astronom sering menempatkan Uranus dan Neptunus dalam kategori "raksasa es" untuk membedakan keduanya dari raksasa gas. 
+            </p>
+        </div>
+        <div id="neptune" class="planet-container" style="--bg-color: #282eff">
+            <div class="banner">
+                <h3>PLANET</h3>
+                <h1>Neptunus</h1>
+            </div>
+            <img class="planet" src="https://cdn.pixabay.com/photo/2021/04/05/15/55/neptune-6153867_960_720.png">
+            <p class="description">
+                Neptunus merupakan planet terjauh (kedelapan) jika ditinjau dari Matahari. Planet ini dinamai dari dewa lautan Romawi. Neptunus merupakan planet terbesar keempat berdasarkan diameter (49.530 km) dan terbesar ketiga berdasarkan massa. Massa Neptunus tercatat 17 kali lebih besar daripada Bumi, dan sedikit lebih kecil daripada Uranus. Neptunus mengorbit Matahari pada jarak 30,1 sa atau sekitar 4.450 juta km. Periode rotasi planet ini adalah 16,1 jam, sedangkan periode revolusinya adalah 164,8 tahun. Simbol astronomisnya adalah ♆, yang merupakan trisula dewa Neptunus.
+            </p>
+        </div>
+
+        <script>
+            setTimeout(() => {
+                if ($('.planet-container:target') != null) return;
+                navigate(0);
+            }, 5e3);
+
+            $all('.planet').forEach(el => {
+                el.addEventListener('click', () => toggleClass('opened', el.parentElement));
+            })
+        </script>
+    </main>
+ </body>
+ </html>
